@@ -8,7 +8,7 @@ class ReservationStatus(models.Model):
     name = models.CharField(max_length=45)
 
     class Meta:
-        db_table = "reservation_tatus"
+        db_table = "reservation_status"
 
 class Reservation(TimeStampModels):
     reservation_number = models.CharField(max_length=14)
