@@ -9,13 +9,13 @@ class Region(models.Model):
 
 class Room(models.Model):
     name          = models.CharField(max_length=255)
-    description   = models.TextField
+    description   = models.TextField()
     thumbnail_img = models.CharField(max_length=500)
     price         = models.DecimalField(max_digits=16, decimal_places=2, default=0.00)
     max_guest     = models.IntegerField(default=0, validators=[MinValueValidator(0)])
     max_pet       = models.IntegerField(default=0, validators=[MinValueValidator(0)])
-    check_in      = models.DateField()
-    check_out     = models.DateField()
+    check_in      = models.CharField(max_length=45)
+    check_out     = models.CharField(max_length=45)
     bedroom       = models.CharField(max_length=10)
     bed_count     = models.CharField(max_length=10)
     latitude      = models.DecimalField(max_digits=10, decimal_places=6, default=0.000000)
