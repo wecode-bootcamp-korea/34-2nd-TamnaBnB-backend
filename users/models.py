@@ -4,12 +4,12 @@ from core.models import TimeStampModels
 from rooms.models import Room 
 
 class User(TimeStampModels):
-    email         = models.EmailField(max_length=255, unique=True)
-    name          = models.CharField(max_length=255)
-    password      = models.CharField(max_length=500)
-    birthday_date = models.CharField(max_length=45)
+    email         = models.EmailField(max_length=255, null=True)
+    name          = models.CharField(max_length=255, null=True)
+    password      = models.CharField(max_length=500, null=True)
+    birthday_date = models.CharField(max_length=45, null=True)
     profile_img   = models.CharField(max_length=500, null=True)
-    kakao_id      = models.CharField(max_length=255, unique=True)
+    kakao_id      = models.BigIntegerField()
 
     class Meta:
         db_table = "users"
