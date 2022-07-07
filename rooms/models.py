@@ -32,7 +32,7 @@ class Room(models.Model):
 
 class RoomImage(models.Model):
     image_url = models.CharField(max_length=1000)
-    room      = models.ForeignKey(Room, on_delete=models.CASCADE, related_name="room")
+    room      = models.ForeignKey(Room, on_delete=models.CASCADE, related_name="images")
 
     class Meta:
         db_table = "room_images"
