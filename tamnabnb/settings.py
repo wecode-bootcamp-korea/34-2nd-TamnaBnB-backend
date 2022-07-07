@@ -1,10 +1,16 @@
 from pathlib import Path
 
-from my_settings import SECRET_KEY, DATABASES
+from my_settings import SECRET_KEY, DATABASES, REST_API_KEY, ALGORITHM, REDIRECT_URI
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = SECRET_KEY
+
+ALGORITHM = ALGORITHM
+
+REST_API_KEY = REST_API_KEY
+
+REDIRECT_URI = REDIRECT_URI
 
 DEBUG = True
 
