@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 
 from django.views import View
 from django.http  import JsonResponse
-from django.db.models  import Q, Avg
+from django.db.models  import Avg, Count, Q
 from reservations.models import Reservation
 
 from rooms.models import Room
@@ -71,3 +71,60 @@ class RoomsListView(View):
         ]
         
         return JsonResponse({"room_list" : room_list}, status=200)
+
+class RoomDetailView(View):
+    def get(self, request, room_id):
+        try:
+            room = Room.objects\
+                .select_related("host")\
+                .prefetch_related("images", "review_set", "facilities", "types", "categories")\
+                .annotate(review_count=Count('review__id'))\
+                .annotate(review_avg=Avg("review__ratings"))\
+                .get(id=room_id)
+
+            room_info = {
+                    "id"           : room.id,
+                    "name"         : room.name,
+                    "description"  : room.description,
+                    "thumbnail_img": room.thumbnail_img,
+                    "price"        : room.price,
+                    "max_guest"    : room.max_guest,
+                    "max_pet"      : room.max_pet,
+                    "check_in"     : room.check_in,
+                    "check_out"    : room.check_out,
+                    "bedroom"      : room.bedroom,
+                    "bed_count"    : room.bed_count,
+                    "latitude"     : room.latitude,
+                    "longitude"    : room.longitude,
+                    "address"      : room.address,
+                    "region"       : room.region.name,
+                    "images"       : [image.image_url for image in room.images.all()],
+                    "types"        : [type.name for type in room.types.all()],
+                    "facilites"    : [facility.name for facility in room.facilities.all()],
+                    "categories"   : [category.name for category in room.categories.all()],
+                    "host"         : {
+                        "id"           : room.host.id,
+                        "name"         : room.host.name,
+                        "nickname"     : room.host.nickname,
+                        "profile_img"  : room.host.profile_img,
+                        "is_super_host": room.host.is_super_host
+                    },
+                    "review"       : {
+                        "ratings_count": room.review_count,
+                        "ratings_avg"  : room.review_avg if True else "New",
+                        "info"         : [
+                            {
+                                "id"               : review.id,
+                                "user_name"        : review.user.name,
+                                "user_profile_img" : review.user.profile_img,
+                                "content"          : review.content,
+                                "created_at"       : datetime.strftime(review.created_at, "%Y-%m-%d %H:%M"),
+                            } for review in room.review_set.all().distinct().order_by("-created_at")
+                        ]
+                    }
+                }
+
+            return JsonResponse({"room_info": room_info}, status=200)
+
+        except Room.DoesNotExist:
+            return JsonResponse({"message": "INVALID_ROOM"}, status=400)
