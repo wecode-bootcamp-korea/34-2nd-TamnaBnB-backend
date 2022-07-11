@@ -10,6 +10,7 @@ class User(TimeStampModels):
     birthday_date = models.CharField(max_length=45, null=True)
     profile_img   = models.CharField(max_length=500, null=True)
     kakao_id      = models.BigIntegerField()
+    point         = models.DecimalField(max_digits=9, decimal_places=2, default=1000000.00)
 
     class Meta:
         db_table = "users"
