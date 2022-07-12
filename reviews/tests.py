@@ -63,25 +63,21 @@ class ReviewTest(TestCase) :
         Room.objects.all().delete()
         Review.objects.all().delete()
 
-    # def test_success_post_review(self):
-        
-    #     access_token = jwt.encode({"user_id": User.objects.get(id=1).id}, settings.SECRET_KEY, settings.ALGORITHM)
-        
-    #     headers = {"HTTP_Authoriazation": access_token}
-        
-    #     payload = jwt.decode(access_token, settings.SECRET_KEY, settings.ALGORITHM)
-        
-    #     user    = User.objects.get(id = payload["user_id"])
-    #     print(user.id)
-    #     body = {
-    #         "content"   : "테스트용 리뷰입니다.",
-    #         "ratings"   : "3",
-    #         "image_url" : "tets.jpg",
-    #         "user_id"   : user.id,
-    #         "room_id"   : 1
-    #     }
+    def test_success_post_review(self):
+      
+        access_token = jwt.encode({"user_id": 1}, settings.SECRET_KEY, settings.ALGORITHM)
+      
+        headers = {"HTTP_Authorization": access_token}
 
-    #     response = self.client.post("/reviews", data = body, **headers, content_type= "application/json")
-        
-    #     self.assertEqual(response.json(), {"message": "SUCCESS"})
-    #     self.assertEqual(response.status_code, 200)
+        body = {
+            "content"   : "테스트용 리뷰입니다.",
+            "ratings"   : "3",
+            "image_url" : "tets.jpg",
+            "user_id"   : 1,
+            "room_id"   : 1
+        }
+   
+        response = self.client.post("/reviews", data = body, **headers, content_type= "application/json")
+      
+        self.assertEqual(response.json(), {"message": "SUCCESS"})
+        self.assertEqual(response.status_code, 200)
