@@ -45,7 +45,7 @@ class UserTest(TestCase):
         headers             = {"HTTP_Authoriazation": "가짜 access_token"}
         response            = client.get("/users/kakao-signin", **headers)
         access_token        = jwt.encode({"user_id": 1}, settings.SECRET_KEY, settings.ALGORITHM)  
-        
+
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(),{
             "message"     : "SUCCESS_LOGIN",
@@ -55,7 +55,6 @@ class UserTest(TestCase):
     @patch("users.views.requests")
     def test_success_create_user(self, mocked_requests):
         client = Client()
-
         class MockedResponse:
             def json(self):
                 return {
@@ -73,8 +72,8 @@ class UserTest(TestCase):
         mocked_requests.get = MagicMock(return_value = MockedResponse()) 
         headers             = {"HTTP_Authoriazation": "가짜 access_token"}
         response            = client.get("/users/kakao-signin", **headers)
-        access_token        = jwt.encode({"user_id": 2}, settings.SECRET_KEY, settings.ALGORITHM)  
-        
+        access_token        = response.json()["access_token"]
+
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.json(),{
             "message"     : "CREATED_NEW_USER",
