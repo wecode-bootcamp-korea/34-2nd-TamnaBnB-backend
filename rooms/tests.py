@@ -651,13 +651,14 @@ class RoomDetialTest(TestCase):
                     "review"       : {
                         "ratings_count": 1,
                         "ratings_avg"  : "5.000000",
-                        "user"         : [
+                        "info"         : [
                             {
-                                "id"         : 1, 
-                                "name"       : None,
-                                "profile_img": None,
-                                "content"    : "테스트 리뷰입니다.",
-                                "created_at" : current_time.strftime("%Y-%m-%d %H:%M")
+                                "id"              : 1,
+                                "user_id"         : 1,
+                                "user_name"       : None,
+                                "user_profile_img": None,
+                                "content"         : "테스트 리뷰입니다.",
+                                "created_at"      : current_time.strftime("%Y-%m-%d %H:%M")
                             }
                         ]
                     }
