@@ -14,7 +14,6 @@ class RoomsListView(View):
         check_out      = request.GET.get("check_out", None)
         offset         = int(request.GET.get("offset", 0))
         limit          = int(request.GET.get("limit", 25))
-        reserved_rooms = []
 
         q = Q()
 
@@ -24,8 +23,6 @@ class RoomsListView(View):
 
             q |= Q(check_in_date__range  = [check_in_date, check_out_date-timedelta(days=1)])
             q |= Q(check_out_date__range = [check_in_date-timedelta(days= -1), check_out])
-        
-            reserved_rooms = Reservation.objects.filter(q)
 
         filter_set = {
             "region_id"   : "region_id",
@@ -45,7 +42,7 @@ class RoomsListView(View):
             .select_related("region")\
             .prefetch_related("images", "review_set")\
             .annotate(review_avg = Avg("review__ratings"))\
-            .exclude(reservation__in=reserved_rooms)\
+            .exclude(q)\
             .order_by("id")[offset:offset+limit]
 
         room_list = [
@@ -71,6 +68,7 @@ class RoomsListView(View):
         ]
         
         return JsonResponse({"room_list" : room_list}, status=200)
+
 
 class RoomDetailView(View):
     def get(self, request, room_id):
@@ -115,11 +113,12 @@ class RoomDetailView(View):
                         "info"         : [
                             {
                                 "id"               : review.id,
+                                "user_id"          : review.user_id,
                                 "user_name"        : review.user.name,
                                 "user_profile_img" : review.user.profile_img,
                                 "content"          : review.content,
                                 "created_at"       : datetime.strftime(review.created_at, "%Y-%m-%d %H:%M"),
-                            } for review in room.review_set.all().distinct().order_by("-created_at")
+                            } for review in room.review_set.all().order_by("-created_at")
                         ]
                     }
                 }

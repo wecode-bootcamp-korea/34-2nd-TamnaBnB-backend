@@ -28,7 +28,8 @@ INSTALLED_APPS = [
     "reviews",
     "reservations",
     "rooms",
-    "users"
+    "users",
+    "django_extensions"
 ]
 
 MIDDLEWARE = [
