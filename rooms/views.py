@@ -23,7 +23,7 @@ class RoomsListView(View):
             check_out_date = datetime.strptime(check_out, "%Y-%m-%d")
 
             q |= Q(check_in_date__range  = [check_in_date, check_out_date-timedelta(days=1)])
-            q |= Q(check_out_date__range = [check_in_date-timedelta(days= -1), check_out])
+            q |= Q(check_out_date__range = [check_in_date-timedelta(days=-1), check_out_date])
         
             reserved_rooms = Reservation.objects.filter(q)
 
@@ -115,11 +115,12 @@ class RoomDetailView(View):
                         "info"         : [
                             {
                                 "id"               : review.id,
+                                "user_id"          : review.user.id,
                                 "user_name"        : review.user.name,
                                 "user_profile_img" : review.user.profile_img,
                                 "content"          : review.content,
                                 "created_at"       : datetime.strftime(review.created_at, "%Y-%m-%d %H:%M"),
-                            } for review in room.review_set.all().distinct().order_by("-created_at")
+                            } for review in room.review_set.all().order_by("-created_at")
                         ]
                     }
                 }
