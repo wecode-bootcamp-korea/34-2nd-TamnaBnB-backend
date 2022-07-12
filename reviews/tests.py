@@ -1,4 +1,3 @@
-from os import access
 import jwt
 
 from django.test import TestCase, Client
@@ -53,6 +52,14 @@ class ReviewTest(TestCase) :
             region_id     = 1,
             host_id       = 1
         )
+
+        Review.objects.create(
+            content   = "테스트용 리뷰입니다.",
+            ratings   = "4",
+            image_url = "test1.jpg",
+            user_id   = 1,
+            room_id   = 1
+        )
         
     def tearDown(self):
         User.objects.all().delete()
@@ -77,7 +84,7 @@ class ReviewTest(TestCase) :
         
         self.assertEqual(response.json(), {"message": "SUCCESS"})
         self.assertEqual(response.status_code, 200)
-    
+
     def test_fail_key_error(self): 
         access_token = jwt.encode({"user_id": 1}, settings.SECRET_KEY, settings.ALGORITHM)
         headers      = {"HTTP_Authorization": access_token}
@@ -143,3 +150,21 @@ class ReviewTest(TestCase) :
         
         self.assertEqual(response.json(), {"message": "INVALID_USER"})
         self.assertEqual(response.status_code, 400)
+
+    def test_success_delete_review(self):
+        access_token = jwt.encode({"user_id": 1}, settings.SECRET_KEY, settings.ALGORITHM)
+        headers      = {"HTTP_Authorization": access_token}
+
+        response = self.client.delete("/reviews?room_id=1", **headers, content_type="application/json")
+
+        self.assertEqual(response.json(), {"message": "SUCCESS"})
+        self.assertEqual(response.status_code, 200)
+
+    def test_fail_room_does_not_exist_error(self):
+        access_token = jwt.encode({"user_id": 1}, settings.SECRET_KEY, settings.ALGORITHM)
+        headers      = {"HTTP_Authorization": access_token}
+
+        response = self.client.delete("/reviews?room_id=123", **headers, content_type="application/json")
+
+        self.assertEqual(response.json(), {"message": "INVALID_ROOM"})
+        self.assertEqual(response.status_code, 400) 
