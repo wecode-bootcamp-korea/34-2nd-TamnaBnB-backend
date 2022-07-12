@@ -28,3 +28,17 @@ class ReviewView(View):
 
         except KeyError:
            return  JsonResponse({"Message": "KEY_ERROR"}, status=400)
+
+"""
+s3 upload
+
+boto3 library
+
+bucket -> client 역할을 하는 객체를 만든다.
+
+client.uplaod_fileobj(file)
+put_object
+
+이름이 중복되면 안됨
+uuid로 해결
+"""
