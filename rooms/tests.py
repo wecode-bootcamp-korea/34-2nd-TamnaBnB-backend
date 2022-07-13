@@ -317,7 +317,7 @@ class RoomListTest(TestCase):
         })
 
     def test_success_roomlist_filter_one(self):
-        response = self.client.get("/rooms?region_id=1&bed_room=2&max_price=40000&check_in=2022-08-01&check_out=2022-08-02")
+        response = self.client.get("/rooms?region=제주시&bed_room=2&max_price=40000&check_in=2022-08-01&check_out=2022-08-02")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {
             "room_list": [
@@ -343,7 +343,7 @@ class RoomListTest(TestCase):
         })
 
     def test_success_roomlist_filter_two(self):
-        response = self.client.get("/rooms?region_id=1&bed_room=2&min_price=40000&max_price=60000&check_in=2022-07-29&check_out=2022-08-02")
+        response = self.client.get("/rooms?region=제주시&bed_room=2&min_price=40000&max_price=60000&check_in=2022-07-29&check_out=2022-08-02")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {
             "room_list": [
@@ -633,8 +633,8 @@ class RoomDetialTest(TestCase):
                     "check_out"     : "11:00",
                     "bedroom"       : "2",
                     "bed_count"     : "2",
-                    "latitude"      : "37.123456",
-                    "longitude"     : "125.123456",
+                    "latitude"      : 37.123456,
+                    "longitude"     : 125.123456,
                     "address"       : "경기도 오산시 오산로 77",
                     "region"        : "제주시",
                     "images"        : ["test1.jpg"],
