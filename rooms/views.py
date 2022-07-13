@@ -28,7 +28,7 @@ class RoomsListView(View):
             reserved_rooms = Reservation.objects.filter(q)
 
         filter_set = {
-            "region_id"   : "region_id",
+            "region"      : "region__name",
             "bedroom"     : "bedroom",
             "bed_count"   : "bed_count",
             "min_price"   : "price__gte",
