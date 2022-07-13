@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 from django.conf import settings
 from django.test import TestCase, Client
 
-from users.models import User, Host, Wishlist
+from users.models import User
 
 class UserTest(TestCase):
     def setUp(self):
@@ -42,7 +42,7 @@ class UserTest(TestCase):
                 }
 
         mocked_requests.get = MagicMock(return_value = MockedResponse()) 
-        headers             = {"HTTP_Authoriazation": "가짜 access_token"}
+        headers             = {"HTTP_Authorization": "가짜 access_token"}
         response            = client.get("/users/kakao-signin", **headers)
         access_token        = jwt.encode({"user_id": 1}, settings.SECRET_KEY, settings.ALGORITHM)  
 
@@ -70,7 +70,7 @@ class UserTest(TestCase):
                 }
 
         mocked_requests.get = MagicMock(return_value = MockedResponse()) 
-        headers             = {"HTTP_Authoriazation": "가짜 access_token"}
+        headers             = {"HTTP_Authorization": "가짜 access_token"}
         response            = client.get("/users/kakao-signin", **headers)
         access_token        = response.json()["access_token"]
 
@@ -97,7 +97,7 @@ class UserTest(TestCase):
                 }
 
         mocked_requests.get = MagicMock(return_value = MockedResponse()) 
-        headers             = {"HTTP_Authoriazation": "가짜 access_token"}
+        headers             = {"HTTP_Authorization": "가짜 access_token"}
         response            = client.get("/users/kakao-signin", **headers)
         
         self.assertEqual(response.status_code, 400)
