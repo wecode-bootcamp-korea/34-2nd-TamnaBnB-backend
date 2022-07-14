@@ -8,14 +8,23 @@ from users.models        import User, Host
 from rooms.models        import Room, Region
 from reservations.models import Reservation, ReservationStatus
 
+
 class ReservationTest(TestCase):
     def setUp(self):
         self.client = Client()
         
         User.objects.create(
             id       = 1,
-            kakao_id = 12345679
+            kakao_id = 12345679,
+            point    = 1000000.00
         )
+        
+        User.objects.create(
+            id            = 2,
+            kakao_id      = 123456788,
+            point         = 1000000.00
+        )
+
         Host.objects.bulk_create([
             Host(
                 id            = 1,
@@ -219,6 +228,167 @@ class ReservationTest(TestCase):
             }
         })
 
+    def test_success_creat_reservation(self):
+        access_token = jwt.encode({"user_id": 1}, settings.SECRET_KEY, settings.ALGORITHM)
+        headers      = {"HTTP_Authorization": access_token}
+
+        body = {
+            "price"        : "250000",
+            "check_in"     : "2022-08-06",
+            "check_out"    : "2022-08-09",
+            "num_of_guest" : "4",
+            "num_of_pet"   : "0",
+            "room_id"      : 1
+        }
+
+        response = self.client.post("/reservations", body, **headers, content_type="application/json")
+
+        self.assertEqual(response.status_code, 200)        
+        self.assertEqual(response.json(), {"message": "SUCCESS"})
+
+    def test_success_update_reservation(self):
+        access_token = jwt.encode({"user_id": 2}, settings.SECRET_KEY, settings.ALGORITHM)
+        headers      = {"HTTP_Authorization": access_token}
+
+        body = {
+            "price"        : "270000",
+            "check_in"     : "2022-08-06",
+            "check_out"    : "2022-08-09",
+            "num_of_guest" : "4",
+            "num_of_pet"   : "0",
+            "room_id"      : 1
+        }
+
+        response = self.client.post("/reservations", body, **headers, content_type="application/json")
+
+        self.assertEqual(response.status_code, 200)        
+        self.assertEqual(response.json(), {"message": "SUCCESS"})
+
+    def test_fail_over_limit_point(self):
+        access_token = jwt.encode({"user_id": 1}, settings.SECRET_KEY, settings.ALGORITHM)
+        headers      = {"HTTP_Authorization": access_token}
+
+        body = {
+            "price"        : "2500000",
+            "check_in"     : "2022-08-06",
+            "check_out"    : "2022-08-09",
+            "num_of_guest" : "4",
+            "num_of_pet"   : "0",
+            "room_id"      : 1
+        }
+
+        response = self.client.post("/reservations", body, **headers, content_type="application/json")
+
+        self.assertEqual(response.status_code, 400)        
+        self.assertEqual(response.json(), {"message": "OVER_LIMIT_OF_POINT"})
+
+    def test_fail_invalid_checkin_date(self):
+        access_token = jwt.encode({"user_id": 1}, settings.SECRET_KEY, settings.ALGORITHM)
+        headers      = {"HTTP_Authorization": access_token}
+
+        body = {
+            "price"        : "250000",
+            "check_in"     : "2022-07-06",
+            "check_out"    : "2022-08-09",
+            "num_of_guest" : "4",
+            "num_of_pet"   : "0",
+            "room_id"      : 1
+        }
+
+        response = self.client.post("/reservations", body, **headers, content_type="application/json")
+
+        self.assertEqual(response.status_code, 400)        
+        self.assertEqual(response.json(), {"message": "INVALID_DATE"})
+
+    def test_fail_invalid_checkout_date(self):
+        access_token = jwt.encode({"user_id": 1}, settings.SECRET_KEY, settings.ALGORITHM)
+        headers      = {"HTTP_Authorization": access_token}
+
+        body = {
+            "price"        : "250000",
+            "check_in"     : "2022-08-06",
+            "check_out"    : "2022-08-04",
+            "num_of_guest" : "4",
+            "num_of_pet"   : "0",
+            "room_id"      : 1
+        }
+
+        response = self.client.post("/reservations", body, **headers, content_type="application/json")
+
+        self.assertEqual(response.status_code, 400)        
+        self.assertEqual(response.json(), {"message": "INVALID_DATE"})
+
+    def test_fail_over_limit_guest(self):
+        access_token = jwt.encode({"user_id": 1}, settings.SECRET_KEY, settings.ALGORITHM)
+        headers      = {"HTTP_Authorization": access_token}
+
+        body = {
+            "price"        : "250000",
+            "check_in"     : "2022-08-06",
+            "check_out"    : "2022-08-07",
+            "num_of_guest" : "14",
+            "num_of_pet"   : "0",
+            "room_id"      : 1
+        }
+
+        response = self.client.post("/reservations", body, **headers, content_type="application/json")
+
+        self.assertEqual(response.status_code, 400)        
+        self.assertEqual(response.json(), {"message": "OVER_LIMIT_OF_GUEST"})
+
+    def test_fail_over_limit_pet(self):
+        access_token = jwt.encode({"user_id": 1}, settings.SECRET_KEY, settings.ALGORITHM)
+        headers      = {"HTTP_Authorization": access_token}
+
+        body = {
+            "price"        : "250000",
+            "check_in"     : "2022-08-06",
+            "check_out"    : "2022-08-07",
+            "num_of_guest" : "5",
+            "num_of_pet"   : "10",
+            "room_id"      : 1
+        }
+
+        response = self.client.post("/reservations", body, **headers, content_type="application/json")
+
+        self.assertEqual(response.status_code, 400)        
+        self.assertEqual(response.json(), {"message": "OVER_LIMIT_OF_PET"})
+
+    def test_fail_key_error(self):
+        access_token = jwt.encode({"user_id": 1}, settings.SECRET_KEY, settings.ALGORITHM)
+        headers      = {"HTTP_Authorization": access_token}
+
+        body = {
+            "price"        : "250000",
+            "check_in"     : "2022-08-06",
+            "check_out"    : "2022-08-07",
+            "num_of_guest" : "5",
+            "num_of_pet"   : "5",
+        }
+
+        response = self.client.post("/reservations", body, **headers, content_type="application/json")
+
+        self.assertEqual(response.status_code, 400)        
+        self.assertEqual(response.json(), {"message": "KEY_ERROR"})
+
+    def test_fail_invalid_room(self):
+        access_token = jwt.encode({"user_id": 1}, settings.SECRET_KEY, settings.ALGORITHM)
+        headers      = {"HTTP_Authorization": access_token}
+
+        body = {
+            "price"        : "250000",
+            "check_in"     : "2022-08-06",
+            "check_out"    : "2022-08-07",
+            "num_of_guest" : "5",
+            "num_of_pet"   : "5",
+            "room_id"      : 154
+        }
+
+        response = self.client.post("/reservations", body, **headers, content_type="application/json")
+
+        self.assertEqual(response.status_code, 400)        
+        self.assertEqual(response.json(), {"message": "INVALID_ROOM"})
+    
     def test_fail_invalid_signature_token_error(self):
         access_token = jwt.encode({"user_id": 1}, "abscef", settings.ALGORITHM)
         headers      = {"HTTP_Authorization": access_token}
