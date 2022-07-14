@@ -49,7 +49,8 @@ class UserTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(),{
             "message"     : "SUCCESS_LOGIN",
-            "access_token": access_token
+            "access_token": access_token,
+            "user_image"  : "test.jpg"
         })
 
     @patch("users.views.requests")
@@ -77,7 +78,8 @@ class UserTest(TestCase):
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.json(),{
             "message"     : "CREATED_NEW_USER",
-            "access_token": access_token
+            "access_token": access_token,
+            "user_image"  : None
         })
 
     @patch("users.views.requests")
