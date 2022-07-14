@@ -43,10 +43,12 @@ class KakaoSignInView(View):
             status_code  = 201 if is_created else 200
             message      = "CREATED_NEW_USER" if is_created else "SUCCESS_LOGIN"
             access_token = jwt.encode({"user_id": user.id}, settings.SECRET_KEY, settings.ALGORITHM)
-            
+            user_image   = user.profile_img if not is_created else None
+
             messages = {
                 "message"     : message,
-                "access_token": access_token
+                "access_token": access_token,
+                "user_image"  : user_image
             }
 
             return JsonResponse(messages, status=status_code)
