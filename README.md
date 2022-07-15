@@ -1,5 +1,4 @@
 ## ✅ 프로젝트 소개
----
 
 <br>
 
@@ -59,7 +58,6 @@ Front-end 개발자 4명, Back-end 개발자 1명으로 프로젝트를 진행�
 <br>
 
 ## ✅ 협업 Tool
----
 
 <br>
 
@@ -129,7 +127,6 @@ Front-end 레포지토리 [바로가기](https://github.com/wecode-bootcamp-kore
 <br>
 
 ## ✅ 기술 스택
----
 
 이번 프로젝트에서 사용한 기술 스택은 다음과 같습니다.
 
@@ -141,7 +138,6 @@ Front-end 레포지토리 [바로가기](https://github.com/wecode-bootcamp-kore
 <br>
 
 ## ✅ 구현 기능
----
 
 이번 프로젝트에서 구현한 필수 구현 사항은 엔드포인트로 나누어 보았을 때,
 크게 4가지로 볼 수 있습니다.
