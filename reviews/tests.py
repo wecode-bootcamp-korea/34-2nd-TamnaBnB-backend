@@ -71,7 +71,7 @@ class ReviewTest(TestCase) :
     def test_success_post_review(self):
         access_token = jwt.encode({"user_id": 11}, settings.SECRET_KEY, settings.ALGORITHM)
         headers      = {"HTTP_Authorization": access_token}
-        print(access_token)
+
         body = {
             "content"   : "테스트용 리뷰입니다.",
             "ratings"   : "3",
