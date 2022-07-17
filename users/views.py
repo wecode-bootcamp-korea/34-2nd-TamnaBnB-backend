@@ -1,11 +1,15 @@
 import requests
 import jwt
+import boto3
+import uuid
 
 from django.http  import JsonResponse
 from django.views import View
 from django.conf  import settings
 
-from users.models import User
+from core.utils      import token_decorator
+from core.s3uploader import FileUpload, s3_client
+from users.models    import User
 
 class KakaoSignInView(View):
     def get(self, request):
@@ -53,5 +57,26 @@ class KakaoSignInView(View):
 
             return JsonResponse(messages, status=status_code)
 
+        except KeyError:
+            return JsonResponse({"message": "KEY_ERROR"}, status=400)
+
+class ProfileImageUploader(View):
+    @token_decorator
+    def post(self, request):
+        try:    
+            file           = request.FILES.get("file", None)
+            s3__client     = FileUpload(s3_client)
+            upload_img_url = s3__client.upload(file)
+            user           = request.user
+            
+            if not file:
+                return JsonResponse({"message": "NONE_IMAGE"}, status=400)
+
+            User.objects.filter(id=user.id).update(
+                profile_img = upload_img_url
+            )
+
+            return JsonResponse({"message": "SUCCESS"}, status=201)
+        
         except KeyError:
             return JsonResponse({"message": "KEY_ERROR"}, status=400)
