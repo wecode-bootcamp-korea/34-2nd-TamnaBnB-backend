@@ -1,4 +1,6 @@
+from email.mime import application
 import jwt
+import json 
 
 from unittest.mock import MagicMock, patch
 
@@ -24,12 +26,15 @@ class UserTest(TestCase):
     def tearDown(self):
         User.objects.all().delete()
 
-    @patch("users.views.requests")
-    def test_success_get_user(self, mocked_requests):
+    @patch("users.views.KakaoSignin")
+    def test_success_get_user(self, mocked_kakao_api):
         client = Client()
 
         class MockedResponse:
-            def json(self):
+            def get_kakao_token(self, code):
+                return "kakao_token"
+
+            def get_user_information(self, kakao_token):
                 return {
                     "id": 123456789,
                     "kakao_account" : {
@@ -39,13 +44,14 @@ class UserTest(TestCase):
                             "nickname"          : "wecode",
                             "profile_image_url" : "test.jpg"
                         }
-                    }
+                    }   
                 }
 
-        mocked_requests.get = MagicMock(return_value = MockedResponse()) 
-        headers             = {"HTTP_Authorization": "가짜 access_token"}
-        response            = client.get("/users/kakao-signin", **headers)
-        access_token        = jwt.encode({"user_id": 1}, settings.SECRET_KEY, settings.ALGORITHM)  
+        mocked_kakao_api.return_value = MockedResponse()
+
+        body         = {"code" : "kakao_authorization_code"}
+        response     = client.get("/users/kakao-signin", data=body, content_type="application/json")
+        access_token = jwt.encode({"user_id": 1}, settings.SECRET_KEY, settings.ALGORITHM)  
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(),{
@@ -54,36 +60,41 @@ class UserTest(TestCase):
             "user_image"  : "test.jpg"
         })
 
-    @patch("users.views.requests")
-    def test_success_create_user(self, mocked_requests):
+    @patch("users.views.KakaoSignin")
+    def test_success_create_user(self, mocked_kakao_api):
         client = Client()
+
         class MockedResponse:
-            def json(self):
+            def get_kakao_token(self, code):
+                return "kakao_token"
+
+            def get_user_information(self, kakao_token):
                 return {
-                "id": 123451429,
-                "kakao_account" : {
-                    "email"    : "wecode@test.test",
-                    "birthday" : "0101",
-                    "profile"  : {
-                        "nickname"          : "wecode",
-                        "profile_image_url" : "test.jpg"
-                        }
-                    }   
+                    "id": 123451429,
+                    "kakao_account" : {
+                        "email"    : "wecode@test.test",
+                        "birthday" : "0101",
+                        "profile"  : {
+                            "nickname"          : "wecode",
+                            "profile_image_url" : "test.jpg"
+                            }
+                        }   
                 }
 
-        mocked_requests.get = MagicMock(return_value = MockedResponse()) 
-        headers             = {"HTTP_Authorization": "가짜 access_token"}
-        response            = client.get("/users/kakao-signin", **headers)
-        access_token        = response.json()["access_token"]
+        mocked_kakao_api.return_value = MockedResponse() 
+
+        body         = {"code" : "kakao_authorization_code"}
+        response     = client.get("/users/kakao-signin", data=body, content_type="application/json")
+        access_token = jwt.encode({"user_id": 2}, settings.SECRET_KEY, settings.ALGORITHM)  
 
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.json(),{
             "message"     : "CREATED_NEW_USER",
             "access_token": access_token,
-            "user_image"  : None
+            "user_image"  : "test.jpg"
         })
 
-    @patch("users.views.requests")
+    @patch("core.utils.KakaoSignin")
     def test_keyerror_siginview(self, mocked_requests):
         client = Client()
 
