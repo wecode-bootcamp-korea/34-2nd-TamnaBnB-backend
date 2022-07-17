@@ -25,7 +25,7 @@ class Host(TimeStampModels):
     class Meta:
         db_table = "hosts"
 
-class Wishlist(models.Model):
+class Wishlist(TimeStampModels):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     room = models.ForeignKey(Room, on_delete=models.CASCADE)
 

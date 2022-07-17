@@ -1,4 +1,5 @@
-import requests
+import json
+from tempfile import TemporaryFile
 import jwt
 
 from django.http  import JsonResponse
@@ -7,7 +8,8 @@ from django.conf  import settings
 
 from core.utils      import token_decorator, KakaoSignin
 from core.s3uploader import FileUpload, s3_client
-from users.models    import User
+from users.models    import User, Wishlist
+from rooms.models    import Room
 
 class KakaoSignInView(View):
     def get(self, request):
@@ -63,3 +65,52 @@ class ProfileImageUploader(View):
         
         except KeyError:
             return JsonResponse({"message": "KEY_ERROR"}, status=400)
+
+class WishlistView(View):
+    @token_decorator
+    def post(self, request):
+        try:
+            data = json.loads(request.body)
+            user = request.user
+            room = Room.objects.get(id=data["room_id"])
+
+            if Wishlist.objects.filter(user=user, room=room).exists():
+                Wishlist.objects.filter(user=user, room=room).delete()
+                return JsonResponse({"message": "DELETE_SUCCESS"}, status=200)
+            
+            Wishlist.objects.create(
+                user = user,
+                room = room
+            )
+            
+            return JsonResponse({"message": "SUCCESS"}, status=201)
+
+        except KeyError:
+            return JsonResponse({"message": "KEY_ERROR"}, status=400)
+        
+        except Room.DoesNotExist:
+            return JsonResponse({"message": "INVALID_ROOM"}, status=400)
+
+    @token_decorator
+    def get(self, reqeust):
+        user      = reqeust.user
+        wishlists = Wishlist.objects.filter(user_id=user.id)\
+                    .select_related("user", "room")\
+                    .order_by("-created_at")\
+        
+        result = [
+            {
+                "id"         : wishlist.id,
+                "room"       : {
+                    "id"            : wishlist.room.id,
+                    "name"          : wishlist.room.name,
+                    "thumbnail_img" : wishlist.room.thumbnail_img,
+                    "check_in"      : wishlist.room.check_in,
+                    "check_out"     : wishlist.room.check_out
+                }
+
+            } for wishlist in wishlists
+        ]
+        
+        return JsonResponse({"result": result}, status=200)
+        
